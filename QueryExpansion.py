@@ -2,61 +2,65 @@ import pandas as pd
 import time
 from collections import Counter
 
-
 def FindW(query, queryset):
 	count = 0
-	# print 
 	for term in query:
 		count += queryset[term]
-
-	# print query,count
 	return count
 
 def FindWeights():
-	QueryData = pd.read_csv('Queries.csv')
+	print 'Fetching Data...'
+	start = time.time()
+	QueryData = pd.read_csv('Data/Queries.csv')
+	end = time.time()
+	print 'Data Fetched in :',end-start
 
 	frequencies = {}
 
 	termlist = []
 
+	print 'Fetching List of terms ...'
 	start = time.time()
 	for terms in QueryData['ListOfTerms']:
 		for term in terms.split(':'):
 			termlist += [term]
 	# print termlist
 	end = time.time()
-	print "termlist in", end-start
+	print "termlist in :", end-start
 
+	print "Finding Frequency Distributuion.."
 	start = time.time()
 	FreqDist = Counter(termlist)
-
 	end = time.time()
 	print "FreqDist in", end-start
 
+	print "Getting frequencies / weights...."
+	start = time.time()
 	for query in QueryData['ListOfTerms']:
-		# start = time.time()
 		try:
 			W = FindW(query,FreqDist)
-			# print W
 			for term in query.split(':'):
 				Wk = FreqDist[term]
 				value = float(float(Wk) / float(W))
-				if value < float(1):
-					frequencies[term] = value
-				else:
-					frequencies[term] = float(0)
-			# end = time.time()
+				frequencies[term] = value
 		except ZeroDivisionError:
 			continue
-		# print query, 'in :',end-start
+	end = time.time()
+	print "Values calculated in :",end-start
 
+	m = max(frequencies.values())
+
+	print "Entering data into file..."
+	start = time.time()
 	freqlist = []
 	for key in frequencies.keys():
-		freqlist += [[key,frequencies[key]]]
+		freqlist += [[key,float(float(frequencies[key])/float(m))]]
 
 	df = pd.DataFrame(freqlist,columns=['Term','Frequency'])
 
-	df.to_csv('Frequency.csv',header=True,index=0)
+	df.to_csv('Data/Frequency.csv',header=True,index=0)
+	end = time.time()
+	print "Entered into file in :",end-start
 
 	return frequencies
 
