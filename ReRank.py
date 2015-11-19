@@ -3,7 +3,7 @@ import time
 from collections import Counter
 import operator
 
-x = 7
+x = 12
 
 def GetWeights():
 	print 'Fetching from file...'
@@ -46,12 +46,12 @@ def ReRank():
 	print 'Re ranking URLs...'
 	start = time.time()
 	k = 0
+
+	beta = 4
 	for query in querydat['ListOfURLsAndDomains']:
 		url = query.split(':')[0]
 		if not url in rank0:
 			rank0 += [url]
-
-		beta = 4
 
 		for i in rank0:
 			try:
@@ -63,7 +63,7 @@ def ReRank():
 				print 'Value not found for',i,':('
 		
 		for i in rank0:
-			weight[i] = float(float(float(beta)/float(rank0.index(i) + 1)) * dwellsum)
+			weight[i] = float( dwellsum * float(float(beta)/float(rank0.index(i) + 1)))
 
 		k+=1
 		if k>x:
@@ -79,7 +79,7 @@ def ReRank():
 
 	print 'Re ranked to : (Printed in ascending order)'
 	for i in rank:
-		print i
+		print i,':',rank0.index(i[0])+1
 
 
 if __name__ == '__main__':
